@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Preloader from "./components/Preloader";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -13,9 +14,31 @@ import Testimonials from "./components/Testimonials";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
+import PackageDetail from "./components/PackageDetail";
 
-function App() {
+function HomePage() {
   const [selectedPackage, setSelectedPackage] = useState("");
+  const location = useLocation();
+
+  // Handle incoming ?package=xxx#contact from detail page booking CTA
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const pkgParam = params.get("package");
+    if (pkgParam) {
+      setSelectedPackage(pkgParam);
+      // Wait for DOM to settle, then scroll to contact
+      setTimeout(() => {
+        const contactSection = document.querySelector("#contact");
+        if (contactSection) {
+          window.scrollTo({
+            top: contactSection.offsetTop - 80,
+            behavior: "smooth"
+          });
+        }
+      }, 300);
+    }
+  }, [location.search]);
 
   const handleSelectPackage = (packageId) => {
     setSelectedPackage(packageId);
@@ -31,32 +54,23 @@ function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-navy-bg text-white overflow-hidden selection:bg-gold selection:text-navy-dark">
-      {/* 1. Preloader */}
-      <Preloader />
-
-      {/* 2. Floating Tools */}
-      <ScrollToTop />
-
-      {/* 3. Sticky Navigation */}
-      <Navbar />
-
-      {/* 4. Hero Banner */}
+    <>
+      {/* 1. Hero Banner */}
       <Hero />
 
-      {/* 5. Animated Intro Section */}
+      {/* 2. Animated Intro Section */}
       <Intro />
 
-      {/* 6. Featured Packages Section */}
+      {/* 3. Featured Packages Section */}
       <Packages onSelectPackage={handleSelectPackage} />
 
-      {/* 7. Destination Showcase Section */}
+      {/* 4. Destination Showcase Section */}
       <Destinations />
 
-      {/* 8. Down South Experience Section */}
+      {/* 5. Down South Experience Section */}
       <ExperienceSection
         title="Relax by the Golden Coast of Sri Lanka"
-        description="Experience the beauty of Sri Lanka’s southern coast with golden beaches, historic streets, ocean views, fresh seafood, surfing spots and unforgettable sunsets."
+        description="Experience the beauty of Sri Lanka's southern coast with golden beaches, historic streets, ocean views, fresh seafood, surfing spots and unforgettable sunsets."
         features={[
           "Beach stays",
           "Galle Fort",
@@ -75,7 +89,7 @@ function App() {
         onExplore={() => handleSelectPackage("down-south")}
       />
 
-      {/* 9. Ella Experience Section */}
+      {/* 6. Ella Experience Section */}
       <ExperienceSection
         title="Escape to the Misty Mountains of Ella"
         description="Ella is the perfect destination for travellers who love nature, mountain views, waterfalls, hiking, tea estates and peaceful hill country weather."
@@ -84,7 +98,7 @@ function App() {
           "Nine Arch Bridge",
           "Ravana Falls",
           "Tea estates",
-          "Little Adam’s Peak",
+          "Little Adam's Peak",
           "Mountain viewpoints"
         ]}
         buttonText="Explore Ella"
@@ -97,22 +111,46 @@ function App() {
         onExplore={() => handleSelectPackage("ella-getaway")}
       />
 
-      {/* 10. Combo Package Promo Section */}
+      {/* 7. Combo Package Promo Section */}
       <ComboOffer onSelectPackage={handleSelectPackage} />
 
-      {/* 11. Why Choose Us Section */}
+      {/* 8. Why Choose Us Section */}
       <WhyChooseUs />
 
-      {/* 12. Gallery Section */}
+      {/* 9. Gallery Section */}
       <Gallery />
 
-      {/* 13. Testimonials Section */}
+      {/* 10. Testimonials Section */}
       <Testimonials />
 
-      {/* 14. Contact Enquiry Form Section */}
+      {/* 11. Contact Enquiry Form Section */}
       <Contact selectedPackage={selectedPackage} />
+    </>
+  );
+}
 
-      {/* 15. Footer Section */}
+function App() {
+  return (
+    <div className="relative min-h-screen bg-navy-bg text-white overflow-hidden selection:bg-gold selection:text-navy-dark">
+      {/* Preloader */}
+      <Preloader />
+
+      {/* Scroll to top on route change */}
+      <ScrollToTopOnNavigate />
+
+      {/* Floating scroll-to-top button */}
+      <ScrollToTop />
+
+      {/* Sticky Navigation */}
+      <Navbar />
+
+      {/* Page Routes */}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/packages/:packageId" element={<PackageDetail />} />
+      </Routes>
+
+      {/* Footer */}
       <Footer />
     </div>
   );

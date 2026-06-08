@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, Clock, MapPin, Check, Sparkles } from "lucide-react";
+import { Star, Clock, MapPin, Check, Sparkles, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { packages } from "../data/tourData";
 
 export default function Packages({ onSelectPackage }) {
@@ -147,13 +148,14 @@ export default function Packages({ onSelectPackage }) {
                     </div>
                   </div>
 
-                  {/* CTA Button */}
-                  <button
-                    onClick={() => onSelectPackage(pkg.id)}
-                    className="w-full py-4 rounded-xl bg-white/5 border border-white/10 hover:border-gold hover:bg-gold hover:text-navy-dark font-bold text-xs tracking-wider uppercase transition-all duration-300 shadow-md group-hover:animate-pulse-glow flex items-center justify-center gap-2 cursor-pointer"
+                  {/* CTA Button — now links to detail page */}
+                  <Link
+                    to={`/packages/${pkg.id}`}
+                    className="w-full py-4 rounded-xl bg-white/5 border border-white/10 hover:border-gold hover:bg-gold hover:text-navy-dark font-bold text-xs tracking-wider uppercase transition-all duration-300 shadow-md group-hover:animate-pulse-glow flex items-center justify-center gap-2"
                   >
                     {pkg.buttonText}
-                  </button>
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </div>
               </motion.div>
             );

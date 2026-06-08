@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Compass, Mail, Phone, MapPin, Send } from "lucide-react";
 
 const socialLinks = [
@@ -46,6 +47,8 @@ export default function Footer() {
     }
   };
 
+  const navigate = useNavigate();
+
   const handleLinkClick = (e, id) => {
     e.preventDefault();
     const target = document.querySelector(id);
@@ -54,6 +57,9 @@ export default function Footer() {
         top: target.offsetTop - 80,
         behavior: "smooth"
       });
+    } else {
+      // If section not found (we're on a detail page), navigate home
+      navigate("/" + id);
     }
   };
 
@@ -70,9 +76,8 @@ export default function Footer() {
           
           {/* Brand Info (Col span 4) */}
           <div className="lg:col-span-4 flex flex-col items-start">
-            <a 
-              href="#home" 
-              onClick={(e) => handleLinkClick(e, "#home")}
+            <Link 
+              to="/"
               className="flex items-center gap-2 mb-6 group cursor-pointer"
             >
               <div className="bg-gradient-to-tr from-ocean to-tropical p-2 rounded-lg text-white group-hover:rotate-12 transition-transform duration-300">
@@ -81,7 +86,7 @@ export default function Footer() {
               <span className="font-display font-black text-xl tracking-wider text-white uppercase">
                 Ceylon <span className="text-gold">Escape</span>
               </span>
-            </a>
+            </Link>
             
             <p className="text-white/60 text-sm font-light leading-relaxed mb-6 max-w-sm">
               Beautiful Sri Lankan journeys, planned with care. Explore the tropical coasts and misty hills of our magical island.
@@ -142,19 +147,18 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3.5">
               {[
-                { name: "Down South Escape", href: "#packages" },
-                { name: "Ella Mountain Getaway", href: "#packages" },
-                { name: "Beach to Mountain Combo", href: "#packages" },
-                { name: "Custom Sri Lanka Tour", href: "#packages" }
+                { name: "Down South Escape", to: "/packages/down-south" },
+                { name: "Ella Mountain Getaway", to: "/packages/ella-getaway" },
+                { name: "Beach to Mountain Combo", to: "/packages/combo-package" },
+                { name: "Custom Sri Lanka Tour", to: "/packages/custom-tour" }
               ].map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => handleLinkClick(e, link.href)}
+                  <Link
+                    to={link.to}
                     className="text-white/60 hover:text-gold text-sm transition-colors duration-300 font-light"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

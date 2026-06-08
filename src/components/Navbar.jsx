@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Compass, Phone } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const navLinks = [
   { name: "Home", href: "#home" },
@@ -15,12 +16,16 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isHome = location.pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
 
-      // Simple active link detection
+      // Simple active link detection — only on homepage
+      if (!isHome) return;
       const scrollPosition = window.scrollY + 120;
       for (const link of navLinks) {
         const el = document.querySelector(link.href);
@@ -36,18 +41,25 @@ export default function Navbar() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isHome]);
 
   const handleLinkClick = (e, href) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      window.scrollTo({
-        top: target.offsetTop - 80,
-        behavior: "smooth"
-      });
-      setActiveSection(href.slice(1));
+
+    if (isHome) {
+      // On homepage — smooth scroll to section
+      const target = document.querySelector(href);
+      if (target) {
+        window.scrollTo({
+          top: target.offsetTop - 80,
+          behavior: "smooth"
+        });
+        setActiveSection(href.slice(1));
+      }
+    } else {
+      // On another page — navigate to homepage with hash
+      navigate("/" + href);
     }
   };
 
@@ -65,9 +77,8 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
           {/* Logo */}
-          <a 
-            href="#home" 
-            onClick={(e) => handleLinkClick(e, "#home")}
+          <Link 
+            to="/"
             className="flex items-center gap-2 group cursor-pointer"
           >
             <div className="bg-gradient-to-tr from-ocean to-tropical p-2 rounded-lg text-white group-hover:rotate-12 transition-transform duration-300">
@@ -76,12 +87,12 @@ export default function Navbar() {
             <span className="font-display font-black text-xl tracking-wider text-white uppercase">
               Ceylon <span className="text-gold">Escape</span>
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Nav Links */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => {
-              const isActive = activeSection === link.href.slice(1);
+              const isActive = isHome && activeSection === link.href.slice(1);
               return (
                 <a
                   key={link.name}
@@ -148,7 +159,7 @@ export default function Navbar() {
             >
               <div className="flex flex-col gap-6 items-center">
                 {navLinks.map((link, idx) => {
-                  const isActive = activeSection === link.href.slice(1);
+                  const isActive = isHome && activeSection === link.href.slice(1);
                   return (
                     <motion.a
                       initial={{ y: 20, opacity: 0 }}
