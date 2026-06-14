@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Compass } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { destinations } from "../data/tourData";
 
 const categories = ["All", "Beach", "Mountain", "Culture", "Adventure", "Nature"];

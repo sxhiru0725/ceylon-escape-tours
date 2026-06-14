@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Compass, Mail, Phone, MapPin, Send } from "lucide-react";
 
@@ -230,7 +230,7 @@ export default function Footer() {
           </p>
           <div className="flex gap-4 text-[10px] uppercase tracking-wider font-bold text-white/40">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <span>•</span>
+            <span>&bull;</span>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>

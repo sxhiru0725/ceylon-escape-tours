@@ -1,6 +1,5 @@
-import React from "react";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, MapPin } from "lucide-react";
+import { Sparkles, MapPin } from "lucide-react";
 
 export default function ComboOffer({ onSelectPackage }) {
   return (

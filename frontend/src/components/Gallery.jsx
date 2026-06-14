@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, Maximize2, Compass } from "lucide-react";
 import { gallery } from "../data/tourData";
@@ -8,13 +8,27 @@ export default function Gallery() {
 
   const openLightbox = (index) => {
     setLightboxIndex(index);
-    document.body.style.overflow = "hidden";
   };
 
   const closeLightbox = () => {
     setLightboxIndex(null);
-    document.body.style.overflow = "auto";
   };
+
+  useEffect(() => {
+    if (lightboxIndex === null) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setLightboxIndex(null);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [lightboxIndex]);
 
   const showNext = (e) => {
     e.stopPropagation();
@@ -73,14 +87,16 @@ export default function Gallery() {
         {/* Gallery Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {gallery.map((item, index) => (
-            <motion.div
+            <motion.button
+              type="button"
+              aria-label={`Open ${item.title}`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, delay: index * 0.05 }}
               onClick={() => openLightbox(index)}
               key={item.title}
-              className="group relative aspect-square rounded-3xl overflow-hidden shadow-lg border border-white/5 cursor-pointer"
+              className="group relative aspect-square rounded-3xl overflow-hidden shadow-lg border border-white/5 cursor-pointer text-left"
             >
               {/* Image */}
               <img
@@ -106,7 +122,7 @@ export default function Gallery() {
                   <Maximize2 size={14} />
                 </div>
               </div>
-            </motion.div>
+            </motion.button>
           ))}
         </div>
       </div>

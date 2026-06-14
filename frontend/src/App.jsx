@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Preloader from "./components/Preloader";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -18,17 +18,18 @@ import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 import PackageDetail from "./components/PackageDetail";
 
 function HomePage() {
-  const [selectedPackage, setSelectedPackage] = useState("");
   const location = useLocation();
+  const [selectedPackage, setSelectedPackage] = useState(
+    () => new URLSearchParams(location.search).get("package") || ""
+  );
 
   // Handle incoming ?package=xxx#contact from detail page booking CTA
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const pkgParam = params.get("package");
     if (pkgParam) {
-      setSelectedPackage(pkgParam);
       // Wait for DOM to settle, then scroll to contact
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         const contactSection = document.querySelector("#contact");
         if (contactSection) {
           window.scrollTo({
@@ -37,6 +38,7 @@ function HomePage() {
           });
         }
       }, 300);
+      return () => clearTimeout(timeoutId);
     }
   }, [location.search]);
 
@@ -62,7 +64,7 @@ function HomePage() {
       <Intro />
 
       {/* 3. Featured Packages Section */}
-      <Packages onSelectPackage={handleSelectPackage} />
+      <Packages />
 
       {/* 4. Destination Showcase Section */}
       <Destinations />
@@ -124,7 +126,7 @@ function HomePage() {
       <Testimonials />
 
       {/* 11. Contact Enquiry Form Section */}
-      <Contact selectedPackage={selectedPackage} />
+      <Contact key={selectedPackage || "contact"} selectedPackage={selectedPackage} />
     </>
   );
 }

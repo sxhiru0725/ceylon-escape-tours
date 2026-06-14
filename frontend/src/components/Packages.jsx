@@ -1,10 +1,9 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { Star, Clock, MapPin, Check, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { packages } from "../data/tourData";
 
-export default function Packages({ onSelectPackage }) {
+export default function Packages() {
   const containerVariants = {
     hidden: {},
     visible: {

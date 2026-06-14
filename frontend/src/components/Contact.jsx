@@ -1,35 +1,28 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, CheckCircle2, Compass, AlertCircle } from "lucide-react";
+import { Send, CheckCircle2, Compass, AlertCircle, ChevronDown } from "lucide-react";
+import { submitEnquiry } from "../api/enquiries";
 
 export default function Contact({ selectedPackage }) {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     phone: "",
-    packageSelection: "",
+    tourPackage: selectedPackage || "",
     travelDate: "",
-    travellers: "",
+    numberOfPeople: "",
     message: ""
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Sync state when selected package changes from parent packages selection
-  useEffect(() => {
-    if (selectedPackage) {
-      setFormData((prev) => ({
-        ...prev,
-        packageSelection: selectedPackage
-      }));
-    }
-  }, [selectedPackage]);
+  const [submitError, setSubmitError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setSubmitError("");
     // Clear error
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -38,7 +31,7 @@ export default function Contact({ selectedPackage }) {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
+    if (!formData.name.trim()) newErrors.name = "Full name is required";
     
     if (!formData.email.trim()) {
       newErrors.email = "Email address is required";
@@ -52,35 +45,44 @@ export default function Contact({ selectedPackage }) {
       newErrors.phone = "Please enter a valid phone number";
     }
 
-    if (!formData.packageSelection) newErrors.packageSelection = "Please select a tour package";
-    if (!formData.travelDate) newErrors.travelDate = "Please choose a travel date";
-    if (!formData.travellers || parseInt(formData.travellers, 10) <= 0) {
-      newErrors.travellers = "Must be at least 1 traveller";
+    if (!formData.tourPackage) newErrors.tourPackage = "Please select a tour package";
+    if (
+      formData.numberOfPeople &&
+      (parseInt(formData.numberOfPeople, 10) <= 0 ||
+        parseInt(formData.numberOfPeople, 10) > 100)
+    ) {
+      newErrors.numberOfPeople = "Must be between 1 and 100 travellers";
     }
+    if (!formData.message.trim()) newErrors.message = "Message is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       setIsSubmitting(true);
-      
-      // Simulate API submit delay
-      setTimeout(() => {
+      setSubmitError("");
+
+      try {
+        await submitEnquiry(formData);
         setIsSubmitting(false);
         setIsSubmitted(true);
         setFormData({
-          fullName: "",
+          name: "",
           email: "",
           phone: "",
-          packageSelection: "",
+          tourPackage: "",
           travelDate: "",
-          travellers: "",
+          numberOfPeople: "",
           message: ""
         });
-      }, 1500);
+      } catch (error) {
+        setIsSubmitting(false);
+        setSubmitError(error.message);
+        if (error.fields) setErrors(error.fields);
+      }
     }
   };
 
@@ -144,17 +146,17 @@ export default function Contact({ selectedPackage }) {
                 <label className="text-xs font-bold uppercase tracking-widest text-sand">Full Name</label>
                 <input
                   type="text"
-                  name="fullName"
-                  value={formData.fullName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   placeholder="e.g. John Doe"
                   className={`w-full bg-navy-dark/60 rounded-xl border px-4.5 py-3.5 text-sm text-white placeholder-white/20 transition-all duration-300 focus:outline-none focus:bg-navy-dark ${
-                    errors.fullName ? "border-sunset/60 focus:border-sunset" : "border-white/10 focus:border-gold/50"
+                    errors.name ? "border-sunset/60 focus:border-sunset" : "border-white/10 focus:border-gold/50"
                   }`}
                 />
-                {errors.fullName && (
+                {errors.name && (
                   <span className="flex items-center gap-1 text-[11px] font-medium text-sunset mt-1">
-                    <AlertCircle size={10} /> {errors.fullName}
+                    <AlertCircle size={10} /> {errors.name}
                   </span>
                 )}
               </div>
@@ -204,11 +206,11 @@ export default function Contact({ selectedPackage }) {
                 <label className="text-xs font-bold uppercase tracking-widest text-sand">Select Package</label>
                 <div className="relative">
                   <select
-                    name="packageSelection"
-                    value={formData.packageSelection}
+                    name="tourPackage"
+                    value={formData.tourPackage}
                     onChange={handleChange}
                     className={`w-full bg-navy-dark/60 rounded-xl border px-4.5 py-3.5 text-sm text-white transition-all duration-300 focus:outline-none focus:bg-navy-dark appearance-none ${
-                      errors.packageSelection ? "border-sunset/60 focus:border-sunset" : "border-white/10 focus:border-gold/50"
+                      errors.tourPackage ? "border-sunset/60 focus:border-sunset" : "border-white/10 focus:border-gold/50"
                     }`}
                   >
                     <option value="" className="bg-navy-dark text-white/55">-- Choose Package --</option>
@@ -219,12 +221,12 @@ export default function Contact({ selectedPackage }) {
                   </select>
                   {/* Custom Arrow */}
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
-                    ▼
+                    <ChevronDown size={16} />
                   </div>
                 </div>
-                {errors.packageSelection && (
+                {errors.tourPackage && (
                   <span className="flex items-center gap-1 text-[11px] font-medium text-sunset mt-1">
-                    <AlertCircle size={10} /> {errors.packageSelection}
+                    <AlertCircle size={10} /> {errors.tourPackage}
                   </span>
                 )}
               </div>
@@ -239,6 +241,7 @@ export default function Contact({ selectedPackage }) {
                   name="travelDate"
                   value={formData.travelDate}
                   onChange={handleChange}
+                  min={new Date().toISOString().slice(0, 10)}
                   className={`w-full bg-navy-dark/60 rounded-xl border px-4.5 py-3.5 text-sm text-white/80 transition-all duration-300 focus:outline-none focus:bg-navy-dark ${
                     errors.travelDate ? "border-sunset/60 focus:border-sunset" : "border-white/10 focus:border-gold/50"
                   }`}
@@ -254,18 +257,18 @@ export default function Contact({ selectedPackage }) {
                 <label className="text-xs font-bold uppercase tracking-widest text-sand">Number of Travellers</label>
                 <input
                   type="number"
-                  name="travellers"
-                  value={formData.travellers}
+                  name="numberOfPeople"
+                  value={formData.numberOfPeople}
                   onChange={handleChange}
                   min="1"
                   placeholder="e.g. 2"
                   className={`w-full bg-navy-dark/60 rounded-xl border px-4.5 py-3.5 text-sm text-white placeholder-white/20 transition-all duration-300 focus:outline-none focus:bg-navy-dark ${
-                    errors.travellers ? "border-sunset/60 focus:border-sunset" : "border-white/10 focus:border-gold/50"
+                    errors.numberOfPeople ? "border-sunset/60 focus:border-sunset" : "border-white/10 focus:border-gold/50"
                   }`}
                 />
-                {errors.travellers && (
+                {errors.numberOfPeople && (
                   <span className="flex items-center gap-1 text-[11px] font-medium text-sunset mt-1">
-                    <AlertCircle size={10} /> {errors.travellers}
+                    <AlertCircle size={10} /> {errors.numberOfPeople}
                   </span>
                 )}
               </div>
@@ -280,11 +283,24 @@ export default function Contact({ selectedPackage }) {
                 onChange={handleChange}
                 rows="4"
                 placeholder="Share details such as accommodation preferences, diet restrictions, budget guidelines, etc..."
-                className="w-full bg-navy-dark/60 rounded-xl border border-white/10 px-4.5 py-3.5 text-sm text-white placeholder-white/20 transition-all duration-300 focus:outline-none focus:bg-navy-dark focus:border-gold/50"
+                className={`w-full bg-navy-dark/60 rounded-xl border px-4.5 py-3.5 text-sm text-white placeholder-white/20 transition-all duration-300 focus:outline-none focus:bg-navy-dark ${
+                  errors.message ? "border-sunset/60 focus:border-sunset" : "border-white/10 focus:border-gold/50"
+                }`}
               />
+              {errors.message && (
+                <span className="flex items-center gap-1 text-[11px] font-medium text-sunset mt-1">
+                  <AlertCircle size={10} /> {errors.message}
+                </span>
+              )}
             </div>
 
             {/* Submit Button */}
+            {submitError && (
+              <div className="flex items-center gap-2 rounded-xl border border-sunset/40 bg-sunset/10 px-4 py-3 text-sm text-sunset">
+                <AlertCircle size={16} />
+                {submitError}
+              </div>
+            )}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -329,7 +345,7 @@ export default function Contact({ selectedPackage }) {
                   </h3>
 
                   <p className="text-white/60 text-sm leading-relaxed mb-8 font-light">
-                    Thank you for planning with Ceylon Escape Tours. A Sri Lankan travel expert will review your preferences and get in touch with you shortly.
+                    Thank you. Your enquiry has been sent successfully.
                   </p>
 
                   <button

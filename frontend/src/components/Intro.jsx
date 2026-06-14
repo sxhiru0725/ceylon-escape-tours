@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { Palmtree, Mountain, Map, ArrowRight } from "lucide-react";
 

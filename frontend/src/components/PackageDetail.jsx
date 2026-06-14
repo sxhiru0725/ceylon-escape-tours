@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -25,6 +25,22 @@ export default function PackageDetail() {
   const [lightboxIdx, setLightboxIdx] = useState(null);
 
   const pkg = packages.find((p) => p.id === packageId);
+
+  useEffect(() => {
+    if (lightboxIdx === null) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setLightboxIdx(null);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [lightboxIdx]);
 
   if (!pkg) {
     return (
@@ -475,13 +491,15 @@ export default function PackageDetail() {
             className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4"
           >
             {pkg.galleryImages.map((img, idx) => (
-              <motion.div
+              <motion.button
+                type="button"
+                aria-label={`Open ${pkg.name} gallery image ${idx + 1}`}
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.08 }}
-                className={`relative rounded-2xl overflow-hidden cursor-pointer group ${
+                className={`relative rounded-2xl overflow-hidden cursor-pointer group text-left ${
                   idx === 0 ? "md:col-span-2 md:row-span-2" : ""
                 }`}
                 onClick={() => setLightboxIdx(idx)}
@@ -499,7 +517,7 @@ export default function PackageDetail() {
                     className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg"
                   />
                 </div>
-              </motion.div>
+              </motion.button>
             ))}
           </motion.div>
         </div>
@@ -528,6 +546,7 @@ export default function PackageDetail() {
               {/* Close */}
               <button
                 onClick={() => setLightboxIdx(null)}
+                aria-label="Close package gallery"
                 className="absolute top-6 right-6 w-12 h-12 rounded-full glass-card border border-white/10 flex items-center justify-center text-white hover:text-gold hover:border-gold/40 transition-all cursor-pointer"
               >
                 <X size={20} />
@@ -540,6 +559,7 @@ export default function PackageDetail() {
                     e.stopPropagation();
                     setLightboxIdx(lightboxIdx - 1);
                   }}
+                  aria-label="Previous package image"
                   className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-card border border-white/10 flex items-center justify-center text-white hover:text-gold hover:border-gold/40 transition-all cursor-pointer"
                 >
                   <ArrowLeft size={18} />
@@ -551,6 +571,7 @@ export default function PackageDetail() {
                     e.stopPropagation();
                     setLightboxIdx(lightboxIdx + 1);
                   }}
+                  aria-label="Next package image"
                   className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-card border border-white/10 flex items-center justify-center text-white hover:text-gold hover:border-gold/40 transition-all cursor-pointer"
                 >
                   <ArrowRight size={18} />

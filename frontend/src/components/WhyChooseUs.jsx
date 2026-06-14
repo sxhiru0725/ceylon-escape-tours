@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useInView, animate } from "framer-motion";
 import { Users, CheckCircle, ShieldCheck, Car, Award, Percent } from "lucide-react";
 
@@ -144,7 +144,7 @@ export default function WhyChooseUs() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
-          {stats.map((stat, idx) => {
+          {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <motion.div

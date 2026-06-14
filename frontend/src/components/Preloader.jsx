@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Compass } from "lucide-react";
 
@@ -6,22 +6,26 @@ export default function Preloader() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Wait for the window load or fallback timer
+    let hideTimer;
+
     const handleLoad = () => {
-      setTimeout(() => setLoading(false), 2000);
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => setLoading(false), 800);
     };
+
+    const fallbackTimer = setTimeout(handleLoad, 2500);
 
     if (document.readyState === "complete") {
       handleLoad();
     } else {
       window.addEventListener("load", handleLoad);
-      // Fallback in case load event already fired or delayed
-      const timer = setTimeout(handleLoad, 2500);
-      return () => {
-        window.removeEventListener("load", handleLoad);
-        clearTimeout(timer);
-      };
     }
+
+    return () => {
+      window.removeEventListener("load", handleLoad);
+      clearTimeout(fallbackTimer);
+      clearTimeout(hideTimer);
+    };
   }, []);
 
   return (
