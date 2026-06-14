@@ -1,0 +1,19 @@
+{
+  "name": "ceylon-escape-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js",
+    "lint": "node --check src/server.js && node --check src/config/db.js && node --check src/models/Enquiry.js && node --check src/routes/enquiryRoutes.js && node --check src/controllers/enquiryController.js && node --check src/utils/sendEmail.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.6.3",
+    "nodemailer": "^8.0.11"
+  }
+}
